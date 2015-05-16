@@ -1,0 +1,45 @@
+<%
+  t_jenkins_port = @jenkins_port
+
+  if t_jenkins_port.empty? then
+    t_jenkins_port = '8080'
+  end
+-%>
+<Proxy http://localhost:<%= @jenkins_proxy_port %>/jenkins*>
+  Order deny,allow
+  Allow from all
+</Proxy>
+
+Listen <%= t_jenkins_port %>
+<VirtualHost _default_:<%= t_jenkins_port %>>
+
+  ProxyPreserveHost on
+  ProxyRequests off
+  Proxypass /jenkins/ http://localhost:8081/jenkins/
+  Proxypass /jenkins http://localhost:8081/jenkins/
+  <Location /jenkins/>
+    ProxyPassReverse /
+    Order deny,allow
+    Allow from all
+  </Location>
+  Header edit location ^http://(.*):<%= t_jenkins_port %>/jenkins/? https://$1:<%= t_jenkins_port %>/jenkins/
+
+  SSLEngine on
+
+  SSLProtocol <%= @ssl_protocols.map{|x| x !~ /^(\+|-|all)/i ? x = "+#{x}" : x = x}.join(' ') %>
+  SSLCipherSuite <%= @ssl_cipher_suite.join(':') %>
+
+  SSLCertificateFile <%= @sslcertificatefile %>
+  SSLCertificateKeyFile <%= @sslcertificatekeyfile %>
+  SSLCACertificatePath <%= @sslcacertificatepath %>
+
+  SSLOptions +StdEnvVars +ExportCertData
+  SSLVerifyClient <%= @sslverifyclient %>
+  SSLVerifyDepth  <%= @sslverifydepth %>
+
+  RequestHeader set X-Client-DN %{SSL_CLIENT_S_DN}e
+  RequestHeader set X-Client-Verify %{SSL_CLIENT_VERIFY}e
+
+  ErrorLog syslog:<%= @logfacility %>
+
+</VirtualHost>

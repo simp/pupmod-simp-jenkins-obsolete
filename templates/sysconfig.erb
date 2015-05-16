@@ -1,0 +1,16 @@
+<%
+  t_jenkins_enable_access_log = @jenkins_enable_access_log
+  if not t_jenkins_enable_access_log.eql?('no') then
+    t_jenkins_enable_access_log = 'yes'
+  end
+-%>
+JENKINS_HOME="/var/lib/jenkins"
+JENKINS_JAVA_CMD=""
+JENKINS_USER="jenkins"
+JENKINS_JAVA_OPTIONS="-Djava.io.tmpdir=<%= @jenkins_tmpdir %> -Djava.awt.headless=true -Djavax.net.ssl.trustStore=<%= @jenkins_keystore %> -Xmx<%= @heap_size %>m -XX:PermSize=<%= @perm_size %>m -XX:MaxPermSize=<%= @max_perm_size %>m"
+JENKINS_PORT="<%= @jenkins_proxy_port %>"
+JENKINS_DEBUG_LEVEL="5"
+JENKINS_ENABLE_ACCESS_LOG="<%= t_jenkins_enable_access_log %>"
+JENKINS_HANDLER_MAX="<%= @jenkins_handler_max %>"
+JENKINS_HANDLER_IDLE="<%= @jenkins_handler_idle %>"
+JENKINS_ARGS="--httpListenAddress=127.0.0.1 --prefix=/jenkins"

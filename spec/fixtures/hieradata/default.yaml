@@ -1,0 +1,12 @@
+---
+client_nets: '1.2.3.4/32'
+rsync::server: 'test.example.domain'
+rsync::timeout: '10'
+jenkins::basedn: 'dc=example,dc=domain'
+jenkins::ldap_uri:
+  - 'ldap://test.example.domain'
+jenkins::ldap_bind_dn: 'cn=hostAuth,ou=Hosts,dc=example,dc=domain'
+jenkins::ldap_bind_pass: '{SSHA}lkjdfaglkjdfsl;kfdlksgsdfgdfggfd'
+jenkins::default_ldap_admin: 'jinkles'
+jenkins::setup_apache: true
+jenkins::setup_conf: true

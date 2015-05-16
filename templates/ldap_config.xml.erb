@@ -1,0 +1,63 @@
+<%
+ # Sanity checking
+ if @default_ldap_admin.empty? then
+   raise Puppet::ParseError.new("You must specify an LDAP user for $default_ldap_admin")
+ end
+-%>
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <version>1.411</version>
+  <numExecutors>2</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.ProjectMatrixAuthorizationStrategy">
+    <permission>hudson.model.Hudson.Administer:<%= @default_ldap_admin %></permission>
+<% if @allow_anonymous_read then -%>
+    <permission>hudson.model.Hudson.Read:anonymous</permission>
+<% end -%>
+  </authorizationStrategy>
+  <securityRealm class="hudson.security.LDAPSecurityRealm">
+    <server><%= @ldap_uri.join(' ').gsub('ldap:','ldaps:') %></server>
+    <rootDN><%= @basedn %></rootDN>
+    <inhibitInferRootDN>false</inhibitInferRootDN>
+    <userSearchBase><%= @user_search_base %></userSearchBase>
+    <userSearch>uid={0}</userSearch>
+    <groupSearchBase><%= @group_search_base %></groupSearchBase>
+<% if not @ldap_bind_dn.empty? then
+   require 'base64'
+-%>
+    <managerDN><%= @ldap_bind_dn %></managerDN>
+    <managerPassword><%= Base64.encode64(@ldap_bind_pass) %></managerPassword>
+<% end -%>
+  </securityRealm>
+  <markupFormatter class="hudson.markup.RawHtmlMarkupFormatter"/>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds/>
+  <slaves/>
+  <quietPeriod>5</quietPeriod>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <primaryView>All</primaryView>
+  <slaveAgentPort>0</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>true</excludeClientIPFromCrumb>
+    <PROXY__HEADER>X-Forwarded-For</PROXY__HEADER>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties/>
+  <disabledAdministrativeMonitors>
+    <string>hudson.diagnosis.ReverseProxySetupMonitor</string>
+  </disabledAdministrativeMonitors>
+  <noUsageStatistics>true</noUsageStatistics>
+</hudson>

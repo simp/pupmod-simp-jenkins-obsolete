@@ -1,0 +1,36 @@
+<%
+  t_jenkins_port = @jenkins_port
+
+  if t_jenkins_port.empty? then
+    t_jenkins_port = '8080'
+  end
+-%>
+<Proxy http://localhost:<%= @jenkins_proxy_port %>/jenkins*>
+  Order deny,allow
+  Allow from all
+</Proxy>
+
+ProxyRequests off
+ProxyPreserveHost on
+ProxyPass /jenkins/ http://localhost:<%= @jenkins_proxy_port %>/jenkins/
+ProxyPass /jenkins http://localhost:<%= @jenkins_proxy_port %>/jenkins/
+
+<Location /jenkins/>
+
+  SSLOptions +StdEnvVars +ExportCertData
+  SSLVerifyClient <%= @sslverifyclient %>
+  SSLVerifyDepth  <%= @sslverifydepth %>
+
+  SSLProtocol <%= @ssl_protocols.map{|x| x !~ /^(\+|-|all)/i ? x = "+#{x}" : x = x}.join(' ') %>
+  SSLCipherSuite <%= @ssl_cipher_suite.join(':') %>
+
+  RequestHeader set X-Client-DN %{SSL_CLIENT_S_DN}e
+  RequestHeader set X-Client-Verify %{SSL_CLIENT_VERIFY}e
+
+  ProxyPassReverse /
+  Order deny,allow
+  Allow from all
+  Header edit location ^http://(.*):<%= t_jenkins_port %>/jenkins/? https://$1:<%= t_jenkins_port %>/jenkins/
+  Header edit location ^http://(.*)/jenkins/? https://$1/jenkins/
+
+</Location>
