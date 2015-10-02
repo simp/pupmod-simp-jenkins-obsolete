@@ -1,17 +1,18 @@
 ---
 fixtures:
   repositories:
-    apache: "git://github.com/simp/pupmod-simp-apache"
-    auditd: "git://github.com/simp/pupmod-simp-auditd"
-    augeasproviders_core: "git://github.com/simp/augeasproviders_core"
-    augeasproviders_grub: "git://github.com/simp/augeasproviders_grub"
-    common: "git://github.com/simp/pupmod-simp-common"
-    concat: "git://github.com/simp/pupmod-simp-concat"
-    iptables: "git://github.com/simp/pupmod-simp-iptables"
-    logrotate: "git://github.com/simp/pupmod-simp-logrotate"
-    pki: "git://github.com/simp/pupmod-simp-pki"
-    rsync: "git://github.com/simp/pupmod-simp-rsync"
-    rsyslog: "git://github.com/simp/pupmod-simp-rsyslog"
-    stdlib: "git://github.com/simp/puppetlabs-stdlib"
+    apache:                "git://github.com/simp/pupmod-simp-apache"
+    auditd:                "git://github.com/simp/pupmod-simp-auditd"
+    augeasproviders_core:  "git://github.com/simp/augeasproviders_core"
+    augeasproviders_grub:  "git://github.com/simp/augeasproviders_grub"
+    common:                "git://github.com/simp/pupmod-simp-common"
+    concat:                "git://github.com/simp/pupmod-simp-concat"
+    iptables:              "git://github.com/simp/pupmod-simp-iptables"
+    logrotate:             "git://github.com/simp/pupmod-simp-logrotate"
+    pki:                   "git://github.com/simp/pupmod-simp-pki"
+    rsync:                 "git://github.com/simp/pupmod-simp-rsync"
+    rsyslog:               "git://github.com/simp/pupmod-simp-rsyslog"
+    stdlib:                "git://github.com/simp/puppetlabs-stdlib"
+    functions:             'git://github.com/simp/pupmod-simp-functions'
   symlinks:
     jenkins: "#{source_dir}"

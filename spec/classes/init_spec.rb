@@ -47,10 +47,10 @@ describe 'jenkins' do
 
   shared_examples_for "a fact set" do
     # Check hieradata/default.yaml to see which variables have been set.
-    it { should create_class('jenkins') }
-    it { should contain_class('jenkins::plugins') }
-    it { should create_file('/etc/httpd/conf.d/jenkins.conf').with_content(/localhost\:8081/) }
-    it { should create_file('/var/log/jenkins/jenkins.log').with({
+    it { is_expected.to create_class('jenkins') }
+    it { is_expected.to contain_class('jenkins::plugins') }
+    it { is_expected.to create_file('/etc/httpd/conf.d/jenkins.conf').with_content(/localhost\:8081/) }
+    it { is_expected.to create_file('/var/log/jenkins/jenkins.log').with({
         :owner    => 'jenkins',
         :group    => 'jenkins',
         :mode     => '0640'
@@ -58,7 +58,7 @@ describe 'jenkins' do
     }
 
     context 'base' do
-      it { should create_class('jenkins') }
+      it { is_expected.to create_class('jenkins') }
     end
   end
 
