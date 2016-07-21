@@ -1,0 +1,3 @@
+Requires: pupmod-iptables >= 4.1.0
+Requires: pupmod-apache >= 4.1.0
+Obsoletes: pupmod-jenkins-test >= 0.0.1
