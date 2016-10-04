@@ -1,25 +1,27 @@
 {
-  "name":    "simp-jenkins",
+  "name": "simp-jenkins",
   "version": "4.1.0",
-  "author":  "simp",
+  "author": "simp",
   "summary": "Management of a Jenkins installation",
   "license": "Apache-2.0",
-  "source":  "https://github.com/simp/pupmod-simp-jenkins",
+  "source": "https://github.com/simp/pupmod-simp-jenkins",
   "project_page": "https://github.com/simp/pupmod-simp-jenkins",
-  "issues_url":   "https://simp/project.atlassian.net",
-  "tags": [ "simp" ],
+  "issues_url": "https://simp-project.atlassian.net",
+  "tags": [
+    "simp"
+  ],
   "dependencies": [
     {
       "name": "simp/apache",
-      "version_requirement": ">= 4.1.0"
+      "version_requirement": ">= 4.1.6 < 5.0.0"
     },
     {
       "name": "simp/iptables",
-      "version_requirement": ">= 4.1.0"
+      "version_requirement": ">= 4.1.4 < 5.0.0"
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 1.1.0"
+      "version_requirement": ">= 1.3.1 < 2.0.0"
     }
   ],
   "operatingsystem_support": [
