@@ -1,6 +1,6 @@
 {
   "name": "simp-jenkins",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "author": "simp",
   "summary": "Management of a Jenkins installation",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
     },
     {
       "name": "simp/iptables",
-      "version_requirement": ">= 4.1.4 < 5.0.0"
+      "version_requirement": ">= 5.0.0 < 6.0.0"
     },
     {
       "name": "simp/simplib",
