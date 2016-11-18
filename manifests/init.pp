@@ -268,7 +268,7 @@ class jenkins (
   }
 
   if $setup_apache {
-    apache::add_site { 'jenkins':
+    simp_apache::add_site { 'jenkins':
       content => $jenkins_port ? {
         '443'   => template('jenkins/apache_native_ssl.erb'),
         default => template('jenkins/apache.erb')
