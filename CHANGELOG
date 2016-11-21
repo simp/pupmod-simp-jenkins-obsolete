@@ -1,3 +1,7 @@
+* Fri Nov 18 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.0.0-0
+- Updated to deconflicted simp_apache module
+- Updated to compliance_markup version 2
+
 * Tue Nov 15 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 4.1.2-0
 - Updated iptables dependency version
 
