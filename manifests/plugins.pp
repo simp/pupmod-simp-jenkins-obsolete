@@ -22,8 +22,12 @@
 #
 # * Trevor Vaughan <tvaughan@onyxpoint.com>
 #
-class jenkins::plugins {
-  include 'rsync'
+class jenkins::plugins (
+  $rsync_source  = "jenkins_plugins_${environment}",
+  $rsync_server  = hiera('rsync::server'),
+  $rsync_timeout = hiera('rsync::timeout')
+){
+  include '::rsync'
 
   file { '/var/lib/jenkins/plugins':
     ensure => 'directory',
@@ -33,9 +37,9 @@ class jenkins::plugins {
   }
 
   rsync { 'jenkins':
-    server  => hiera('rsync::server'),
-    timeout => hiera('rsync::timeout'),
-    source  => 'jenkins_plugins',
+    server  => $rsync_server,
+    timeout => $rsync_timeout,
+    source  => $rsync_source,
     target  => '/var/lib/jenkins/plugins',
     notify  => Service['jenkins']
   }
