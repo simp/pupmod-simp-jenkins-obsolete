@@ -23,7 +23,7 @@
 # * Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class jenkins::plugins (
-  $rsync_source  = "jenkins_plugins_${environment}",
+  $rsync_source  = "jenkins_plugins_${::environment}",
   $rsync_server  = hiera('rsync::server'),
   $rsync_timeout = hiera('rsync::timeout')
 ){
