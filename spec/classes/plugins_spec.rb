@@ -7,10 +7,15 @@ describe 'jenkins::plugins' do
         let(:facts) do
           facts
         end
+        let(:environment) {:production}
 
-        it { should create_class('jenkins::plugins') }
-        it { should contain_class('rsync') }
-        it { should create_file('/var/lib/jenkins/plugins').with_ensure('directory') }
+        it { is_expected.to create_class('jenkins::plugins') }
+        it { is_expected.to contain_class('rsync') }
+        it { is_expected.to contain_rsync('jenkins').with({
+          :source => 'jenkins_plugins_production/'
+          })
+        }
+        it { is_expected.to create_file('/var/lib/jenkins/plugins').with_ensure('directory') }
       end
     end
   end
