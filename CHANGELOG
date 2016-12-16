@@ -1,3 +1,6 @@
+* Fri Dec 16 2016 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.0-0
+- Updated global catalysts
+
 * Thu Dec 01 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-0
 - Updated to use the environment-aware rsync in SIMP 6
 

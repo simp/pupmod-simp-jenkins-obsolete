@@ -24,8 +24,8 @@
 #
 class jenkins::plugins (
   $rsync_source  = "jenkins_plugins_${::environment}/",
-  $rsync_server  = hiera('rsync::server'),
-  $rsync_timeout = hiera('rsync::timeout')
+  $rsync_server  = simplib::lookup('simp_options::rsync::server', { 'default_value' => '127.0.0.1', 'value_type' => String }),
+  $rsync_timeout = simplib::lookup('simp_options::rsync::timeout', { 'default_value' => '2', 'value_type' => Stdlib::Compat::Integer })
 ){
   include '::rsync'
 

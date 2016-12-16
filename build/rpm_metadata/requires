@@ -6,4 +6,4 @@ Requires: pupmod-simp-rsync >= 6.0.0-0
 Requires: pupmod-simp-simp_apache < 7.0.0-0
 Requires: pupmod-simp-simp_apache >= 5.0.0-0
 Requires: pupmod-simp-simplib < 3.0.0-0
-Requires: pupmod-simp-simplib >= 2.0.0-0
+Requires: pupmod-simp-simplib >= 2.1.0-0

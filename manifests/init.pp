@@ -59,7 +59,7 @@
 # [*jenkins_handler_idle*]
 #   Maximum number of idle Jenkins worker threads to allow.
 #
-# [*allowed_nets*]
+# [*trusted_nets*]
 #   An array of networks, in Apache allow/deny compatible notation, that will
 #   be allowed to talk to this server.
 #
@@ -69,14 +69,14 @@
 # [*ssl_protocols*]
 #   The allowed SSL protocols (Apache SSLProtocol)
 #
-# [*ssl_cipher_suite*]
+# [*openssl_cipher_suite*]
 #   The allowed SSL Ciphers
 #
 # [*sslverifyclient*]
 # [*sslverifydepth*]
-# [*sslcacertificatepath*]
-# [*isslcertificatefile*]
-# [*sslcertificatekeyfile*]
+# [*app_pki_ca_dir*]
+# [*app_pki_cert*]
+# [*app_pki_key*]
 #
 # [*logfacility*]
 #   It is assumed that you'll want to offload any Apache logs to your log
@@ -86,13 +86,13 @@
 # [*enable_external_yumrepo*]
 #   Set this to true to point to the public yum repo for Jenkins.
 #
-# [*use_ldap*]
+# [*ldap*]
 #   Whether or not to use LDAP as your authentication backend.
 #
 # [*ldap_uri*]
 #   The URI of the LDAP server.
 #
-# [*basedn*]
+# [*ldap_base_dn*]
 #   The Base DN of the LDAP search space.
 #
 # [*user_search_base*]
@@ -106,7 +106,7 @@
 #   The user to use to authenticate to the LDAP server.
 #   Set to blank ('') to use anonymous binding.
 #
-# [*ldap_bind_pass*]
+# [*ldap_bind_pw*]
 #   The password to use when binding to the LDAP server.
 #
 # [*default_ldap_admin*]
@@ -118,49 +118,75 @@
 #   Whether or not to allow anonymous users to read the main dashboard view.
 #
 # [*allow_signup*]
-#   Allow users to sign up for Jenkins accounts. No effect with $use_ldap =
+#   Allow users to sign up for Jenkins accounts. No effect with $ldap =
 #   true
+#
+# [*firewall*]
+#   Whether or not to include the SIMP iptables class and manage firewall rules.
+#   false
+#
+# [*pki*]
+#   Whether or not to include the SIMP pki class and manage certs.
+#   false
 #
 # == Authors
 #
 # * Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class jenkins (
-  $rsync_plugins = true,
-  $setup_apache = false,
-  $setup_conf = false,
-  $jenkins_port = '8080',
-  $jenkins_proxy_port = '8081',
-  $jenkins_tmpdir = '/var/lib/jenkins/tmp',
-  $heap_size = '1024',
-  $perm_size = '32',
-  $max_perm_size = '256',
+  $rsync_plugins             = true,
+  $setup_apache              = false,
+  $setup_conf                = false,
+  $jenkins_port              = '8080',
+  $jenkins_proxy_port        = '8081',
+  $jenkins_tmpdir            = '/var/lib/jenkins/tmp',
+  $heap_size                 = '1024',
+  $perm_size                 = '32',
+  $max_perm_size             = '256',
   $jenkins_enable_access_log = 'no',
-  $jenkins_handler_max = '100',
-  $jenkins_handler_idle = '20',
-  $allowed_nets = hiera('client_nets'),
-  $jenkins_keystore = '/var/lib/jenkins/cacerts.jks',
-  $ssl_protocols = ['TLSv1','TLSv1.1','TLSv1.2'],
-  $ssl_cipher_suite = hiera('openssl::cipher_suite',['HIGH']),
-  $sslverifyclient = 'optional',
-  $sslverifydepth = '10',
-  $sslcacertificatepath = '/etc/pki/cacerts',
-  $sslcertificatefile = "/etc/pki/public/$::fqdn.pub",
-  $sslcertificatekeyfile = "/etc/pki/private/$::fqdn.pem",
-  $logfacility = 'local6',
-  $enable_external_yumrepo = false,
-  $use_ldap = true,
-  $ldap_uri = hiera('ldap::uri'),
-  $basedn = hiera('ldap::base_dn'),
-  $user_search_base = 'ou=People',
-  $group_search_base = 'ou=Group',
-  $ldap_bind_dn = hiera('ldap::bind_dn'),
-  $ldap_bind_pass = hiera('ldap::bind_pw'),
-  $default_ldap_admin = '',
-  $allow_anonymous_read = true,
-  $allow_signup = false
+  $jenkins_handler_max       = '100',
+  $jenkins_handler_idle      = '20',
+  $trusted_nets              = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'], 'value_type' => Array[String]}),
+  $jenkins_keystore          = '/var/lib/jenkins/cacerts.jks',
+  $ssl_protocols             = ['TLSv1','TLSv1.1','TLSv1.2'],
+  $openssl_cipher_suite          = simplib::lookup('simp_options::openssl::cipher_suites', { 'default_value' => ['DEFAULT', '!MEDIUM'], 'value_type' => Array[String]}),
+  $sslverifyclient           = 'optional',
+  $sslverifydepth            = '10',
+  $pki                       = simplib::lookup('simp_options::pki', { 'default_value' => false, 'value_type' => Boolean}),
+  $app_pki_dir               = '/var/jenkins_pki',
+  $app_pki_ca_dir            = '/var/jenkins_pki/pki/cacerts',
+  $app_pki_cert              = "/var/jenkins_pki/pki/public/${::fqdn}.pub",
+  $app_pki_key               = "/var/jenkins_pki/pki/private/${::fqdn}.pem",
+  $logfacility               = 'local6',
+  $enable_external_yumrepo   = false,
+  $ldap                      = true,
+  $ldap_uri                  = simplib::lookup('simp_options::ldap::uri', { 'default_value' => ["ldap://%{hiera('simp_options::puppet::server')}"], 'value_type' => Array[String]}),
+  $ldap_base_dn              = simplib::lookup('simp_options::ldap::base_dn', { 'value_type' => String}),
+  $user_search_base          = 'ou=People',
+  $group_search_base         = 'ou=Group',
+  $ldap_bind_dn              = simplib::lookup('simp_options::ldap::bind_dn', { 'default_value' => "cn=hostAuth,ou=Hosts,%{hiera('simp_options::ldap::base_dn')}", 'value_type' => String}),
+  $ldap_bind_pw              = simplib::lookup('simp_options::ldap::bind_pw', { 'value_type' => String}),
+  $default_ldap_admin        = '',
+  $allow_anonymous_read      = true,
+  $allow_signup              = false,
+  $firewall                  = simplib::lookup('simp_options::firewall', { 'default_value' => false, 'value_type' => Boolean})
 ) {
-  include 'pki'
+
+  if $pki {
+    include '::pki'
+
+    file { $app_pki_dir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0755'
+    }
+    ::pki::copy { $app_pki_dir:
+      require => File[$app_pki_dir],
+      notify  => Exec['build_jenkins_keystore']
+    }
+  }
+
   if $rsync_plugins {
     include 'jenkins::plugins'
   }
@@ -170,21 +196,16 @@ class jenkins (
   $l_jenkins_keystore = '/var/lib/jenkins/cacerts.jks'
 
   exec { 'build_jenkins_keystore':
-    command     => "/bin/rm $l_jenkins_keystore; \
-                for file in /etc/pki/cacerts/*.pem; do \
-                  /usr/bin/keytool -import -keystore $l_jenkins_keystore -trustcacerts -noprompt -alias `/bin/basename \$file` -file \$file -storepass $l_jenkins_pass; \
+    command     => "/bin/rm ${l_jenkins_keystore}; \
+                for file in ${app_pki_ca_dir}/*.pem; do \
+                  /usr/bin/keytool -import -keystore ${l_jenkins_keystore} -trustcacerts -noprompt -alias `/bin/basename \$file` -file \$file -storepass ${l_jenkins_pass}; \
                 done; \
-                chmod 640 $l_jenkins_keystore; \
-                chown root.jenkins $l_jenkins_keystore",
+                chmod 640 ${l_jenkins_keystore}; \
+                chown root.jenkins ${l_jenkins_keystore}",
     refreshonly => true,
     require     => [
       Package['java-1.6.0-openjdk'],
       Package['jenkins']
-    ],
-    subscribe   => [
-      File['/etc/pki/cacerts'],
-      File["/etc/pki/private/${::fqdn}.pem"],
-      File["/etc/pki/public/${::fqdn}.pub"]
     ],
     notify      => Service['jenkins']
   }
@@ -267,12 +288,13 @@ class jenkins (
     ]
   }
 
+  $_jenkins_port = $jenkins_port ? {
+    '443'   => template('jenkins/apache_native_ssl.erb'),
+    default => template('jenkins/apache.erb')
+  }
   if $setup_apache {
     simp_apache::add_site { 'jenkins':
-      content => $jenkins_port ? {
-        '443'   => template('jenkins/apache_native_ssl.erb'),
-        default => template('jenkins/apache.erb')
-      }
+      content => $_jenkins_port
     }
   }
 
@@ -304,33 +326,38 @@ class jenkins (
       }
     }
 
+    $_config_content = $ldap ? {
+      true    => template('jenkins/ldap_config.xml.erb'),
+      default => template('jenkins/config.xml.erb')
+    }
+
     file { '/var/lib/jenkins/config.xml':
       ensure  => 'file',
       owner   => 'jenkins',
       group   => 'jenkins',
       mode    => '0640',
       replace => false,
-      content => $use_ldap ? {
-        true    => template('jenkins/ldap_config.xml.erb'),
-        default => template('jenkins/config.xml.erb')
-      },
+      content => $_config_content,
       require => Package['jenkins'],
       notify  => Service['jenkins']
     }
 
-    iptables::add_tcp_stateful_listen { 'allow_secure_jenkins':
-      order       => '11',
-      client_nets => $allowed_nets,
-      dports      => $jenkins_port
+    if $firewall {
+      iptables::add_tcp_stateful_listen { 'allow_secure_jenkins':
+        order        => '11',
+        trusted_nets => $trusted_nets,
+        dports       => $jenkins_port
+      }
     }
 
+    $_jenkins_enabled = $enable_external_yumrepo ? {
+      true  => 1,
+      false => 0
+    }
     yumrepo { 'jenkins':
       baseurl         => 'http://pkg.jenkins-ci.org/redhat/',
       descr           => 'Jenkins Repository',
-      enabled         => $enable_external_yumrepo ? {
-        true  => 1,
-        false => 0
-      },
+      enabled         => $_jenkins_enabled,
       gpgcheck        => 1,
       gpgkey          => 'http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key',
       keepalive       => 0,
@@ -339,29 +366,29 @@ class jenkins (
     }
   }
 
-  validate_bool($rsync_plugins)
-  validate_bool($setup_apache)
-  validate_bool($setup_conf)
+  #validate_bool($rsync_plugins)
+  #validate_bool($setup_apache)
+  #validate_bool($setup_conf)
   validate_between($jenkins_port, '1', '65535')
   validate_between($jenkins_proxy_port, '1', '65535')
   validate_absolute_path($jenkins_tmpdir)
-  validate_integer($heap_size)
-  validate_integer($perm_size)
-  validate_integer($max_perm_size)
-  validate_array_member($jenkins_enable_access_log, ['yes', 'no'])
-  validate_integer($jenkins_handler_max)
-  validate_integer($jenkins_handler_idle)
-  validate_net_list($allowed_nets)
+  #validate_integer($heap_size)
+  #validate_integer($perm_size)
+  #validate_integer($max_perm_size)
+  #validate_array_member($jenkins_enable_access_log, ['yes', 'no'])
+  #validate_integer($jenkins_handler_max)
+  #validate_integer($jenkins_handler_idle)
+  validate_net_list($trusted_nets)
   validate_absolute_path($jenkins_keystore)
-  validate_array_member($sslverifyclient, ['none','optional','require','optional_no_ca'])
-  validate_integer($sslverifydepth)
-  validate_array($ssl_protocols)
-  validate_array($ssl_cipher_suite)
-  validate_absolute_path($sslcacertificatepath)
-  validate_absolute_path($sslcertificatefile)
-  validate_absolute_path($sslcertificatekeyfile)
-  validate_bool($enable_external_yumrepo)
-  validate_bool($use_ldap)
-  validate_bool($allow_anonymous_read)
-  validate_bool($allow_signup)
+  #validate_array_member($sslverifyclient, ['none','optional','require','optional_no_ca'])
+  #validate_integer($sslverifydepth)
+  #validate_array($ssl_protocols)
+  #validate_array($openssl_cipher_suite)
+  validate_absolute_path($app_pki_ca_dir)
+  validate_absolute_path($app_pki_cert)
+  validate_absolute_path($app_pki_key)
+  #validate_bool($enable_external_yumrepo)
+  #validate_bool($ldap)
+  #validate_bool($allow_anonymous_read)
+  #validate_bool($allow_signup)
 }

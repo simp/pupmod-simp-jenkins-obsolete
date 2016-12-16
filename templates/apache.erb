@@ -27,11 +27,11 @@ Listen <%= t_jenkins_port %>
   SSLEngine on
 
   SSLProtocol <%= @ssl_protocols.map{|x| x !~ /^(\+|-|all)/i ? x = "+#{x}" : x = x}.join(' ') %>
-  SSLCipherSuite <%= @ssl_cipher_suite.join(':') %>
+  SSLCipherSuite <%= @openssl_cipher_suite.join(':') %>
 
-  SSLCertificateFile <%= @sslcertificatefile %>
-  SSLCertificateKeyFile <%= @sslcertificatekeyfile %>
-  SSLCACertificatePath <%= @sslcacertificatepath %>
+  SSLCertificateFile <%= @app_pki_cert %>
+  SSLCertificateKeyFile <%= @app_pki_key %>
+  SSLCACertificatePath <%= @app_pki_ca_dir %>
 
   SSLOptions +StdEnvVars +ExportCertData
   SSLVerifyClient <%= @sslverifyclient %>

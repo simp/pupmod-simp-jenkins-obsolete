@@ -18,7 +18,7 @@
   </authorizationStrategy>
   <securityRealm class="hudson.security.LDAPSecurityRealm">
     <server><%= @ldap_uri.join(' ').gsub('ldap:','ldaps:') %></server>
-    <rootDN><%= @basedn %></rootDN>
+    <rootDN><%= @ldap_base_dn %></rootDN>
     <inhibitInferRootDN>false</inhibitInferRootDN>
     <userSearchBase><%= @user_search_base %></userSearchBase>
     <userSearch>uid={0}</userSearch>
@@ -27,7 +27,7 @@
    require 'base64'
 -%>
     <managerDN><%= @ldap_bind_dn %></managerDN>
-    <managerPassword><%= Base64.encode64(@ldap_bind_pass) %></managerPassword>
+    <managerPassword><%= Base64.encode64(@ldap_bind_pw) %></managerPassword>
 <% end -%>
   </securityRealm>
   <markupFormatter class="hudson.markup.RawHtmlMarkupFormatter"/>
