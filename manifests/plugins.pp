@@ -23,9 +23,9 @@
 # * Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class jenkins::plugins (
-  $rsync_source  = "jenkins_plugins_${::environment}/",
-  $rsync_server  = simplib::lookup('simp_options::rsync::server', { 'default_value' => '127.0.0.1', 'value_type' => String }),
-  $rsync_timeout = simplib::lookup('simp_options::rsync::timeout', { 'default_value' => '2', 'value_type' => Stdlib::Compat::Integer })
+  String      $rsync_source  = "jenkins_plugins_${::environment}/",
+  Simplib::IP $rsync_server  = simplib::lookup('simp_options::rsync::server', { 'default_value' => '127.0.0.1'}),
+  Integer     $rsync_timeout = simplib::lookup('simp_options::rsync::timeout', { 'default_value' => 2 })
 ){
   include '::rsync'
 

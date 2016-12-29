@@ -1,6 +1,6 @@
 <%
  # Sanity checking
- if @default_ldap_admin.empty? then
+ if not @default_ldap_admin then
    raise Puppet::ParseError.new("You must specify an LDAP user for $default_ldap_admin")
  end
 -%>

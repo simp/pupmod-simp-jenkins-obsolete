@@ -1,7 +1,7 @@
 <%
   t_jenkins_port = @jenkins_port
 
-  if t_jenkins_port.empty? then
+  if !t_jenkins_port then
     t_jenkins_port = '8080'
   end
 -%>
