@@ -1,6 +1,7 @@
-# Class jenkins::service
+# Manage the jenkins service
 #
 class jenkins::service {
+  assert_private()
 
   service { 'jenkins':
     ensure     => 'running',

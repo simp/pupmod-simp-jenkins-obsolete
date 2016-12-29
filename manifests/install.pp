@@ -1,6 +1,10 @@
-# Class jenkins::install
+# Manage the installation of jenkins
 #
-class jenkins::install {
+# @param java_package Name of the java package to install
+#
+class jenkins::install (
+  String $java_package = 'java-1.6.0-openjdk'
+){
 
   group { 'jenkins':
     ensure    => 'present',
@@ -21,13 +25,13 @@ class jenkins::install {
     require    => Group['jenkins']
   }
 
-  package { 'java-1.6.0-openjdk':
+  package { $java_package:
     ensure => 'latest'
   }
 
   package { 'jenkins':
     ensure  => 'latest',
-    require => Package['java-1.6.0-openjdk']
+    require => Package[$java_package]
   }
 
 }

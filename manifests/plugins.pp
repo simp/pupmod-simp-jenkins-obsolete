@@ -1,5 +1,3 @@
-# == Class: jenkins::plugins
-#
 # Configure Jenkins' plugins
 #
 # This class ensures that all necessary plugins for adequate testing
@@ -17,10 +15,11 @@
 #
 # See https://wiki.jenkins-ci.org/display/JENKINS/Plugins for more information.
 #
+# @param rsync_source
+# @param rsync_server
+# @param rsync_timeout
 #
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class jenkins::plugins (
   String      $rsync_source  = "jenkins_plugins_${::environment}/",
