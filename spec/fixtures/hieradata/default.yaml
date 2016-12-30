@@ -1,8 +1,8 @@
 ---
-trusted_nets:
+simp_options::trusted_nets:
   - '1.2.3.4/32'
-rsync::server: 'test.example.domain'
-rsync::timeout: 10
+simp_options::rsync::server: 'test.example.domain'
+simp_options::rsync::timeout: 10
 jenkins::ldap_base_dn: 'dc=example,dc=domain'
 jenkins::ldap_uri:
   - 'ldap://test.example.domain'
