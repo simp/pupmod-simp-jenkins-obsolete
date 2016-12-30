@@ -170,6 +170,10 @@ class jenkins (
   Boolean                       $firewall                  = simplib::lookup('simp_options::firewall', { 'default_value' => false})
 ) {
 
+  if $ldap and !$default_ldap_admin {
+    fail('If $ldap is true, you must provide $default_ldap_admin')
+  }
+
   include 'jenkins::install'
   include 'jenkins::service'
 

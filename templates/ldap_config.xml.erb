@@ -1,9 +1,3 @@
-<%
- # Sanity checking
- if not @default_ldap_admin then
-   raise Puppet::ParseError.new("You must specify an LDAP user for $default_ldap_admin")
- end
--%>
 <?xml version='1.0' encoding='UTF-8'?>
 <hudson>
   <version>1.411</version>
