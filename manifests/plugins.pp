@@ -1,5 +1,3 @@
-# == Class: jenkins::plugins
-#
 # Configure Jenkins' plugins
 #
 # This class ensures that all necessary plugins for adequate testing
@@ -17,15 +15,16 @@
 #
 # See https://wiki.jenkins-ci.org/display/JENKINS/Plugins for more information.
 #
+# @param rsync_source
+# @param rsync_server
+# @param rsync_timeout
 #
-# == Authors
-#
-# * Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class jenkins::plugins (
-  $rsync_source  = "jenkins_plugins_${::environment}/",
-  $rsync_server  = hiera('rsync::server'),
-  $rsync_timeout = hiera('rsync::timeout')
+  String        $rsync_source  = "jenkins_plugins_${::environment}/",
+  Simplib::Host $rsync_server  = simplib::lookup('simp_options::rsync::server', { 'default_value' => '127.0.0.1'}),
+  Integer       $rsync_timeout = simplib::lookup('simp_options::rsync::timeout', { 'default_value' => 2 })
 ){
   include '::rsync'
 
