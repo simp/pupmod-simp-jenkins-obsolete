@@ -1,17 +1,10 @@
-<%
-  t_jenkins_port = @jenkins_port
-
-  if !t_jenkins_port then
-    t_jenkins_port = '8080'
-  end
--%>
 <Proxy http://localhost:<%= @jenkins_proxy_port %>/jenkins*>
   Order deny,allow
   Allow from all
 </Proxy>
 
-Listen <%= t_jenkins_port %>
-<VirtualHost _default_:<%= t_jenkins_port %>>
+Listen <%= @jenkins_port %>
+<VirtualHost _default_:<%= @jenkins_port %>>
 
   ProxyPreserveHost on
   ProxyRequests off
@@ -22,7 +15,7 @@ Listen <%= t_jenkins_port %>
     Order deny,allow
     Allow from all
   </Location>
-  Header edit location ^http://(.*):<%= t_jenkins_port %>/jenkins/? https://$1:<%= t_jenkins_port %>/jenkins/
+  Header edit location ^http://(.*):<%= @jenkins_port %>/jenkins/? https://$1:<%= @jenkins_port %>/jenkins/
 
   SSLEngine on
 
