@@ -30,7 +30,7 @@
 # @param setup_conf
 # @param jenkins_port
 #   The port upon which Apache will listen for connections.
-#   Set this to '443' to just run behind the native SSL implementation.
+#   Set this to 443 to just run behind the native SSL implementation.
 #
 # @param jenkins_proxy_port
 #   The port upon which Jenkins will listen for proxy connections from Apache.
@@ -157,7 +157,7 @@ class jenkins (
   Stdlib::Absolutepath          $app_pki_key               = "/etc/jenkins/pki/private/${facts['fqdn']}.pem",
   String                        $logfacility               = 'local6',
   Boolean                       $enable_external_yumrepo   = false,
-  Boolean                       $ldap                      = true,
+  Boolean                       $ldap                      = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
   Array[String]                 $ldap_uri                  = simplib::lookup('simp_options::ldap::uri', { 'default_value' => ["ldap://%{hiera('simp_options::puppet::server')}"]}),
   String                        $ldap_base_dn              = simplib::lookup('simp_options::ldap::base_dn'),
   String                        $user_search_base          = 'ou=People',
@@ -267,7 +267,7 @@ class jenkins (
   }
 
   $_jenkins_port = $jenkins_port ? {
-    '443'   => template('jenkins/apache_native_ssl.erb'),
+    443     => template('jenkins/apache_native_ssl.erb'),
     default => template('jenkins/apache.erb')
   }
   if $setup_apache {
