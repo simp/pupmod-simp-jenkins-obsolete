@@ -125,8 +125,12 @@
 #   false
 #
 # @param pki
-#   Whether or not to include the SIMP pki class and manage certs.
-#   false
+#   Whether or not to let simp manage pki certs.
+#   See the pupmod-simp-pki module for more details.
+#
+# @app_pki_external_source
+#   the location from which the pki certs will be copied from.
+#   If using pki = simp leave this the default.
 #
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
@@ -191,8 +195,9 @@ class jenkins (
   if $pki {
     if $pki == 'simp' { include '::pki' }
 
-    pki::copy { $app_pki_dir:
-      source => $app_pki_external_source
+    pki::copy { $module_name :
+      source => $app_pki_external_source,
+      pki    => $pki
     }
   }
   else {
@@ -271,7 +276,7 @@ class jenkins (
     default => template('jenkins/apache.erb')
   }
   if $setup_apache {
-    simp_apache::add_site { 'jenkins':
+    simp_apache::site { 'jenkins':
       content => $_jenkins_port
     }
   }
