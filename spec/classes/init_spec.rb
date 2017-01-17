@@ -57,8 +57,8 @@ describe 'jenkins' do
         context 'with default parameters' do
           it_should_behave_like "common config"
           it { is_expected.to_not contain_class('pki') }
+          it { is_expected.to_not create_pki__copy('jenkins')}
           it { is_expected.to_not create_iptables__listen__tcp_stateful('allow_secure_jenkins')}
-          it { is_expected.to create_file('/etc/jenkins/pki')}
         end
 
         context 'with pki = simp' do
@@ -66,6 +66,7 @@ describe 'jenkins' do
           it_should_behave_like "common config"
           it { is_expected.to contain_class('pki')}
           it { is_expected.to create_pki__copy('jenkins')}
+          it { is_expected.to create_file('/etc/pki/simp_apps/jenkins/x509')}
         end
 
         context 'with pki = true' do
@@ -73,6 +74,7 @@ describe 'jenkins' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_class('pki')}
           it { is_expected.to create_pki__copy('jenkins')}
+          it { is_expected.to create_file('/etc/pki/simp_apps/jenkins/x509')}
         end
 
         context 'with rsync_plugins = false' do
@@ -147,9 +149,9 @@ Listen 8080
   SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
   SSLCipherSuite DEFAULT:!MEDIUM
 
-  SSLCertificateFile /etc/jenkins/pki/public/foo.example.com.pub
-  SSLCertificateKeyFile /etc/jenkins/pki/private/foo.example.com.pem
-  SSLCACertificatePath /etc/jenkins/pki/cacerts
+  SSLCertificateFile /etc/pki/simp_apps/jenkins/x509/public/foo.example.com.pub
+  SSLCertificateKeyFile /etc/pki/simp_apps/jenkins/x509/private/foo.example.com.pem
+  SSLCACertificatePath /etc/pki/simp_apps/jenkins/x509/cacerts
 
   SSLOptions +StdEnvVars +ExportCertData
   SSLVerifyClient optional
