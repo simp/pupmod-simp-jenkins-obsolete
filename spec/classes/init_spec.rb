@@ -7,7 +7,6 @@ shared_examples_for "common config" do
   it { is_expected.to create_class('jenkins::service')}
   it { is_expected.to contain_class('jenkins::plugins') }
   it { is_expected.to create_file('/etc/jenkins')}
-  it { is_expected.to create_file('/etc/jenkins/pki')}
   it { is_expected.to contain_exec('build_jenkins_keystore') }
   it { is_expected.to create_file('/var/lib/jenkins/cacerts.jks').with_ensure('file') }
   it { is_expected.to create_file('/var/lib/jenkins/users').with_ensure('directory') }
@@ -58,6 +57,7 @@ describe 'jenkins' do
         context 'with default parameters' do
           it_should_behave_like "common config"
           it { is_expected.to_not contain_class('pki') }
+          it { is_expected.to_not create_pki__copy('jenkins')}
           it { is_expected.to_not create_iptables__listen__tcp_stateful('allow_secure_jenkins')}
         end
 
@@ -65,14 +65,16 @@ describe 'jenkins' do
           let(:params) {{ :pki => 'simp' }}
           it_should_behave_like "common config"
           it { is_expected.to contain_class('pki')}
-          it { is_expected.to create_pki__copy('/etc/jenkins')}
+          it { is_expected.to create_pki__copy('jenkins')}
+          it { is_expected.to create_file('/etc/pki/simp_apps/jenkins/x509')}
         end
 
         context 'with pki = true' do
           let(:params) {{ :pki => true }}
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_class('pki')}
-          it { is_expected.to create_pki__copy('/etc/jenkins')}
+          it { is_expected.to create_pki__copy('jenkins')}
+          it { is_expected.to create_file('/etc/pki/simp_apps/jenkins/x509')}
         end
 
         context 'with rsync_plugins = false' do
@@ -84,7 +86,7 @@ describe 'jenkins' do
         context 'with setup_apache = true, jenkins_port = 443' do
           let(:params) {{ :setup_apache => true, :jenkins_port => 443 }}
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_simp_apache__add_site('jenkins').with_content(<<EOM
+          it { is_expected.to create_simp_apache__site('jenkins').with_content(<<EOM
 <Proxy http://localhost:8081/jenkins*>
   Order deny,allow
   Allow from all
@@ -122,7 +124,7 @@ EOM
         context 'with setup_apache = true, jenkins_port = 8080' do
           let(:params) {{ :setup_apache => true, :jenkins_port => 8080 }}
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_simp_apache__add_site('jenkins').with_content(<<EOM
+          it { is_expected.to create_simp_apache__site('jenkins').with_content(<<EOM
 <Proxy http://localhost:8081/jenkins*>
   Order deny,allow
   Allow from all
@@ -147,9 +149,9 @@ Listen 8080
   SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
   SSLCipherSuite DEFAULT:!MEDIUM
 
-  SSLCertificateFile /etc/jenkins/pki/public/foo.example.com.pub
-  SSLCertificateKeyFile /etc/jenkins/pki/private/foo.example.com.pem
-  SSLCACertificatePath /etc/jenkins/pki/cacerts
+  SSLCertificateFile /etc/pki/simp_apps/jenkins/x509/public/foo.example.com.pub
+  SSLCertificateKeyFile /etc/pki/simp_apps/jenkins/x509/private/foo.example.com.pem
+  SSLCACertificatePath /etc/pki/simp_apps/jenkins/x509/cacerts
 
   SSLOptions +StdEnvVars +ExportCertData
   SSLVerifyClient optional

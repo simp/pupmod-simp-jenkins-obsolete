@@ -71,11 +71,6 @@
 #
 # @param sslverifyclient
 # @param sslverifydepth
-# @param app_pki_dir
-# @param app_pki_external_source
-# @param app_pki_ca_dir
-# @param app_pki_cert
-# @param app_pki_key
 #
 # @param logfacility
 #   It is assumed that you'll want to offload any Apache logs to your log
@@ -125,8 +120,37 @@
 #   false
 #
 # @param pki
-#   Whether or not to include the SIMP pki class and manage certs.
-#   false
+#   * If 'simp', include SIMP's pki module and use pki::copy to manage
+#     application certs in /etc/pki/simp_apps/jenkins/x509
+#   * If true, do *not* include SIMP's pki module, but still use pki::copy
+#     to manage certs in /etc/pki/simp_apps/jenkins/x509
+#   * If false, do not include SIMP's pki module and do not use pki::copy
+#     to manage certs.  You will need to appropriately assign a subset of:
+#     * app_pki_dir
+#     * app_pki_key
+#     * app_pki_cert
+#     * app_pki_ca
+#     * app_pki_ca_dir
+#
+# @param app_pki_external_source
+#   * If pki = 'simp' or true, this is the directory from which certs will be
+#     copied, via pki::copy.  Defaults to /etc/pki/simp/x509.
+#
+#   * If pki = false, this variable has no effect.
+#
+# @param app_pki_dir
+#   This variable controls the basepath of $app_pki_key, $app_pki_cert,
+#   $app_pki_ca, $app_pki_ca_dir, and $app_pki_crl.
+#   It defaults to /etc/pki/simp_apps/jenkins/x509.
+#
+# @param app_pki_key
+#   Path and name of the private SSL key file
+#
+# @param app_pki_cert
+#   Path and name of the public SSL certificate
+#
+# @param app_pki_ca_dir
+#   Path to the CA.
 #
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
@@ -150,11 +174,11 @@ class jenkins (
   Jenkins::Sslverifyclient      $sslverifyclient           = 'optional',
   Integer                       $sslverifydepth            = 10,
   Variant[Enum['simp'],Boolean] $pki                       = simplib::lookup('simp_options::pki', { 'default_value' => false}),
-  Stdlib::Absolutepath          $app_pki_dir               = '/etc/jenkins',
-  Stdlib::Absolutepath          $app_pki_external_source   = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/simp/pki' }),
-  Stdlib::Absolutepath          $app_pki_ca_dir            = '/etc/jenkins/pki/cacerts',
-  Stdlib::Absolutepath          $app_pki_cert              = "/etc/jenkins/pki/public/${facts['fqdn']}.pub",
-  Stdlib::Absolutepath          $app_pki_key               = "/etc/jenkins/pki/private/${facts['fqdn']}.pem",
+  Stdlib::Absolutepath          $app_pki_dir               = '/etc/pki/simp_apps/jenkins/x509',
+  Stdlib::Absolutepath          $app_pki_external_source   = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  Stdlib::AbsolutePath          $app_pki_cert            = "${app_pki_dir}/public/${facts['fqdn']}.pub",
+  Stdlib::AbsolutePath          $app_pki_key             = "${app_pki_dir}/private/${facts['fqdn']}.pem",
+  Stdlib::AbsolutePath          $app_pki_ca_dir          = "${app_pki_dir}/cacerts",
   String                        $logfacility               = 'local6',
   Boolean                       $enable_external_yumrepo   = false,
   Boolean                       $ldap                      = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
@@ -189,18 +213,9 @@ class jenkins (
   }
 
   if $pki {
-    if $pki == 'simp' { include '::pki' }
-
-    pki::copy { $app_pki_dir:
-      source => $app_pki_external_source
-    }
-  }
-  else {
-    file { "${app_pki_dir}/pki":
-      ensure => 'directory',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0640'
+    pki::copy { 'jenkins' :
+      source => $app_pki_external_source,
+      pki    => $pki
     }
   }
 
@@ -271,7 +286,7 @@ class jenkins (
     default => template('jenkins/apache.erb')
   }
   if $setup_apache {
-    simp_apache::add_site { 'jenkins':
+    simp_apache::site { 'jenkins':
       content => $_jenkins_port
     }
   }
