@@ -1,3 +1,6 @@
+* Thu Jul 06 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.1-0
+- Update puppet dependency and remove OBE pe dependency in metadata.json
+
 * Tue Jan 17 2017 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.0-0
 - Updated global catalysts
 - Strong typed
