@@ -7,7 +7,7 @@ describe 'jenkins::plugins' do
         let(:facts) do
           facts
         end
-        let(:environment) {:production}
+        let(:environment) {'production'}
 
         it { is_expected.to create_class('jenkins::plugins') }
         it { is_expected.to contain_class('rsync') }

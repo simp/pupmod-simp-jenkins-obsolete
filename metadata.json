@@ -1,6 +1,6 @@
 {
   "name": "simp-jenkins",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "author": "SIMP Team",
   "summary": "Management of a Jenkins installation",
   "license": "Apache-2.0",
